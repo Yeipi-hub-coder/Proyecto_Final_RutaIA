@@ -1,0 +1,35 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: rutaia-backend
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/RutaIA?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:campus2023}
+    password: ${DB_PASSWORD:campus2023}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      # La BD ya existe (script SQL entregado), por eso "validate" y no "update"
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+# URL del workflow de n8n que recibe la pregunta y ejecuta el flujo RAG
+n8n:
+  webhook-url: https://monthly-zipfile-pessimism.ngrok-free.dev/webhook/8c25ddfc-3a08-4441-ac7a-de875bb73f7a
+  timeout-ms: 15000
+
+# Umbral minimo de similitud coseno para considerar un curso relevante (RF11)
+rag:
+  umbral-similitud: ${RAG_UMBRAL:0.75}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
