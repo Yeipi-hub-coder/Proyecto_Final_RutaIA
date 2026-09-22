@@ -21,7 +21,7 @@ spring:
 
 # URL del workflow de n8n que recibe la pregunta y ejecuta el flujo RAG
 n8n:
-  webhook-url: https://monthly-zipfile-pessimism.ngrok-free.dev/webhook/8c25ddfc-3a08-4441-ac7a-de875bb73f7a
+  webhook-url: https://reselect-contort-carwash.ngrok-free.dev/webhook-test/buscar_curso_rutaIA
   timeout-ms: 15000
 
 # Umbral minimo de similitud coseno para considerar un curso relevante (RF11)

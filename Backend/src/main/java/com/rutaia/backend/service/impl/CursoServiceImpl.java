@@ -30,23 +30,35 @@ public class CursoServiceImpl implements CursoService {
                 .duracion(dto.getDuracion())
                 .estado(EstadoCurso.ACTIVO)
                 .build();
-        return toResponse(cursoRepository.save(curso));
+        return DtoToResponse(cursoRepository.save(curso));
     }
 
     @Override
     public CursoResponseDTO obtenerPorId(Integer id) {
-        return toResponse(buscarOFallar(id));
+        return DtoToResponse(buscarOFallar(id));
     }
 
     @Override
     public CursoResponseDTO actualizar(Integer id, CursoRequestDTO dto) {
         Curso curso = buscarOFallar(id);
-        curso.setNombre(dto.getNombre());
-        curso.setDescripcion(dto.getDescripcion());
-        curso.setCategoria(dto.getCategoria());
+        if(dto.getNombre().equals("string") || dto.getNombre().isBlank()){
+            throw new IllegalArgumentException("No Puede dejar los valores default");
+        } else {
+            curso.setNombre(dto.getNombre());
+        }
+        if (dto.getDescripcion().equals("string") || dto.getDescripcion().isBlank()){
+            throw new IllegalArgumentException("No Puede dejar los valores default");
+        } {
+            curso.setDescripcion(dto.getDescripcion());
+        }
+        if (dto.getCategoria().equals("string") || dto.getCategoria().isBlank()){
+            throw new IllegalArgumentException("No Puede dejar los valores default");
+        } {
+            curso.setCategoria(dto.getCategoria());
+        }
         curso.setNivel(dto.getNivel());
         curso.setDuracion(dto.getDuracion());
-        return toResponse(cursoRepository.save(curso));
+        return DtoToResponse(cursoRepository.save(curso));
     }
 
     @Override
@@ -54,8 +66,6 @@ public class CursoServiceImpl implements CursoService {
         Curso curso = buscarOFallar(id);
         curso.setEstado(EstadoCurso.INACTIVO);
         cursoRepository.save(curso);
-        // Nota: si implementas sincronizacion con Qdrant, aqui deberias
-        // disparar la eliminacion/actualizacion del vector correspondiente.
     }
 
     @Override
@@ -75,7 +85,7 @@ public class CursoServiceImpl implements CursoService {
             cursos = cursoRepository.findByEstado(EstadoCurso.ACTIVO);
         }
 
-        return cursos.stream().map(this::toResponse).toList();
+        return cursos.stream().map(this::DtoToResponse).toList();
     }
 
     private Curso buscarOFallar(Integer id) {
@@ -83,7 +93,7 @@ public class CursoServiceImpl implements CursoService {
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un curso con id " + id));
     }
 
-    private CursoResponseDTO toResponse(Curso c) {
+    private CursoResponseDTO DtoToResponse(Curso c) {
         return CursoResponseDTO.builder()
                 .id(c.getId())
                 .nombre(c.getNombre())

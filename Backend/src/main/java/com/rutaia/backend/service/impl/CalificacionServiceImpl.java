@@ -25,7 +25,7 @@ public class CalificacionServiceImpl implements CalificacionService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "No existe una recomendacion con id " + dto.getRecomendacionId()));
 
-        // RN11 / RF17: una sola calificacion por recomendacion
+        // funcionalidad: una sola calificacion por recomendacion
         if (calificacionRepository.existsByRecomendacionId(dto.getRecomendacionId())) {
             throw new BusinessException("Esta recomendacion ya fue calificada");
         }

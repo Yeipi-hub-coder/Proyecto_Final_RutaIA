@@ -37,19 +37,37 @@ public class EstudianteServiceImpl implements EstudianteService {
                 .build();
 
         estudiante = estudianteRepository.save(estudiante);
-        return toResponse(estudiante);
+        return DtoToResponse(estudiante);
     }
 
     @Override
     public EstudianteResponseDTO obtenerPorId(Integer id) {
-        return toResponse(buscarOFallar(id));
+        return DtoToResponse(buscarOFallar(id));
     }
 
     @Override
     public List<EstudianteResponseDTO> listar() {
         return estudianteRepository.findAll().stream()
-                .map(this::toResponse)
+                .map(this::DtoToResponse)
                 .toList();
+    }
+
+    @Override
+    public EstudianteResponseDTO actualizar(Integer id, EstudianteRequestDTO dto){
+        Estudiante estudiante = buscarOFallar(id);
+        if(dto.getNombre().equals("string") || dto.getNombre().isBlank()){
+            throw new IllegalArgumentException("No Puede dejar los valores default");
+        } else {
+            estudiante.setNombre(dto.getNombre());
+        }
+        estudiante.setCorreo(dto.getCorreo());
+        estudiante.setNivelExperiencia(dto.getNivelExperiencia());
+        if (dto.getAreaInteres().equals("string") || dto.getAreaInteres().isBlank()){
+            throw new IllegalArgumentException("No Puede dejar los valores default");
+        } {
+            estudiante.setAreaInteres(dto.getAreaInteres());
+        }
+        return DtoToResponse(estudianteRepository.save(estudiante));
     }
 
     @Override
@@ -72,7 +90,7 @@ public class EstudianteServiceImpl implements EstudianteService {
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un estudiante con id " + id));
     }
 
-    private EstudianteResponseDTO toResponse(Estudiante e) {
+    private EstudianteResponseDTO DtoToResponse(Estudiante e) {
         return EstudianteResponseDTO.builder()
                 .id(e.getId())
                 .nombre(e.getNombre())

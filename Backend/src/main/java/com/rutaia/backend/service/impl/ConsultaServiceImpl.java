@@ -37,18 +37,18 @@ public class ConsultaServiceImpl implements ConsultaService {
     @Transactional
     public ConsultaResponseDTO procesarConsulta(ConsultaRequestDTO dto) {
 
-        // RN06: las preguntas vacias no deben enviarse a n8n (la validacion @NotBlank ya lo cubre en el controller,
+        // las preguntas vacias no se mandan a n8n (la validacion @NotBlank ya lo cubre en el controller,
         // esto es una segunda barrera a nivel de servicio)
         if (!StringUtils.hasText(dto.getPregunta())) {
             throw new BusinessException("La pregunta no puede estar vacia");
         }
 
-        // RN05: toda consulta debe pertenecer a un estudiante existente
+        // funcionalidad: toda consulta debe pertenecer a un estudiante existente
         Estudiante estudiante = estudianteRepository.findById(dto.getEstudianteId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "No existe un estudiante con id " + dto.getEstudianteId()));
 
-        // RF07: se guarda la consulta con estado PENDIENTE antes de llamar a n8n
+        // funcionalidad: se guarda la consulta con estado PENDIENTE antes de llamar a n8n
         Consulta consulta = Consulta.builder()
                 .estudiante(estudiante)
                 .pregunta(dto.getPregunta())
@@ -56,7 +56,7 @@ public class ConsultaServiceImpl implements ConsultaService {
                 .build();
         consulta = consultaRepository.save(consulta);
 
-        // RF08: Spring Boot es el intermediario obligatorio hacia n8n
+        // funcionalidad: SpringBoot es el intermediario obligatorio hacia n8n
         N8nRequestDTO n8nRequest = N8nRequestDTO.builder()
                 .consultaId(consulta.getId())
                 .pregunta(consulta.getPregunta())
@@ -68,7 +68,7 @@ public class ConsultaServiceImpl implements ConsultaService {
 
         EstadoFinal estadoFinal = mapEstado(n8nResponse.getEstado());
 
-        // RF14: se guarda la recomendacion (aunque sea SIN_RESULTADOS o ERROR, para dejar trazabilidad)
+        // funcionalidad: se guarda la recomendacion (aunque sea SIN_RESULTADOS o ERROR, para dejar trazabilidad)
         Recomendacion recomendacion = Recomendacion.builder()
                 .consulta(consulta)
                 .respuestaGenerada(n8nResponse.getRespuesta() != null
@@ -80,7 +80,7 @@ public class ConsultaServiceImpl implements ConsultaService {
 
         if (n8nResponse.getFuentes() != null) {
             for (N8nFuenteDTO f : n8nResponse.getFuentes()) {
-                // RN07: los cursos mostrados como fuente deben existir en la base relacional
+                // funcionalidad: los cursos mostrados como fuente deben existir en la base relacional
                 Curso curso = cursoRepository.findById(f.getCursoId())
                         .orElseThrow(() -> new ResourceNotFoundException(
                                 "El curso fuente con id " + f.getCursoId() + " no existe"));
@@ -95,11 +95,11 @@ public class ConsultaServiceImpl implements ConsultaService {
             }
         }
 
-        // Actualiza el estado final de la consulta (RF07)
+        //funcionalidad: actualiza el estado final de la consulta
         consulta.setEstado(estadoToConsultaEstado(estadoFinal));
         consulta = consultaRepository.save(consulta);
 
-        return toConsultaResponse(consulta, recomendacion);
+        return DtoToConsultaResponse(consulta, recomendacion);
     }
 
     @Override
@@ -107,7 +107,7 @@ public class ConsultaServiceImpl implements ConsultaService {
         Consulta consulta = consultaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No existe una consulta con id " + id));
         Recomendacion recomendacion = recomendacionRepository.findByConsultaId(id).orElse(null);
-        return toConsultaResponse(consulta, recomendacion);
+        return DtoToConsultaResponse(consulta, recomendacion);
     }
 
     private EstadoFinal mapEstado(String estado) {
@@ -126,7 +126,7 @@ public class ConsultaServiceImpl implements ConsultaService {
         };
     }
 
-    private ConsultaResponseDTO toConsultaResponse(Consulta consulta, Recomendacion recomendacion) {
+    private ConsultaResponseDTO DtoToConsultaResponse(Consulta consulta, Recomendacion recomendacion) {
         RecomendacionResponseDTO recDto = null;
         if (recomendacion != null) {
             List<FuenteResponseDTO> fuentes = recomendacion.getFuentes().stream()

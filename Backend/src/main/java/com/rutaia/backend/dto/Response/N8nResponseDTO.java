@@ -8,7 +8,7 @@ import java.util.List;
 // Lo que n8n devuelve a Spring Boot luego de ejecutar el flujo RAG (RF13)
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class N8nResponseDTO {
-    private String estado; // RESPONDIDA | SIN_RESULTADOS | ERROR
+    private String estado;
     private String respuesta;
     private List<N8nFuenteDTO> fuentes;
 }

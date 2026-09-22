@@ -27,12 +27,12 @@ historial, calificaciones y estadísticas.
    ```
    ./gradlew bootRun
    ```
-4. Swagger UI (para probar RF03 - gestión de cursos como admin, y todo lo demás):
+4. Swagger UI:
    ```
    http://localhost:8080/swagger-ui.html
    ```
 
-## Contrato con n8n (RF08)
+## Contrato con n8n
 
 Spring Boot llama por POST a `n8n.webhook-url` con este body:
 
@@ -45,9 +45,7 @@ Spring Boot llama por POST a `n8n.webhook-url` con este body:
 }
 ```
 
-Y espera como respuesta (esto lo debe devolver tu workflow de n8n, después de
-generar el embedding, consultar Qdrant y llamar al modelo vía OpenRouter):
-
+Y espera como respuesta:
 ```json
 {
   "estado": "RESPONDIDA",
@@ -61,7 +59,7 @@ generar el embedding, consultar Qdrant y llamar al modelo vía OpenRouter):
 
 - `estado` debe ser uno de: `RESPONDIDA`, `SIN_RESULTADOS`, `ERROR`.
 - Si `estado` es `SIN_RESULTADOS`, `fuentes` puede ir vacío.
-- El umbral de similitud (RF11) se aplica **dentro de n8n**, antes de construir el
+- El umbral de similitud se aplica **dentro de n8n**, antes de construir el
   contexto que se envía al modelo (property `rag.umbral-similitud`, sugerida como
   referencia para tu workflow).
 
@@ -80,23 +78,18 @@ com.rutaia.backend
 
 ## Endpoints principales
 
-| Método | Endpoint                              | RF     |
-|--------|----------------------------------------|--------|
-| POST   | /api/estudiantes                       | RF01   |
-| GET    | /api/estudiantes                       | RF02   |
-| GET    | /api/estudiantes/{id}                  | RF02   |
-| GET    | /api/estudiantes/{id}/historial        | RF02/16|
-| POST   | /api/cursos                            | RF03   |
-| PUT    | /api/cursos/{id}                       | RF03   |
-| PATCH  | /api/cursos/{id}/desactivar            | RF03   |
-| GET    | /api/cursos?categoria=&nivel=          | RF04   |
-| POST   | /api/consultas                         | RF06-14|
-| GET    | /api/consultas/{id}                    | RF15   |
-| POST   | /api/calificaciones                    | RF17   |
-| GET    | /api/estadisticas                      | RF18   |
+| Método | Endpoint                               |
+|--------|----------------------------------------|
+| POST   | /api/estudiantes                       | 
+| GET    | /api/estudiantes                       | 
+| GET    | /api/estudiantes/{id}                  | 
+| GET    | /api/estudiantes/{id}/historial        | 
+| POST   | /api/cursos                            | 
+| PUT    | /api/cursos/{id}                       | 
+| PATCH  | /api/cursos/{id}/desactivar            | 
+| GET    | /api/cursos?categoria=&nivel=          | 
+| POST   | /api/consultas                         | 
+| GET    | /api/consultas/{id}                    | 
+| POST   | /api/calificaciones                    | 
+| GET    | /api/estadisticas                      | 
 
-## Pendiente por hacer tú (fuera del alcance de este backend)
-- El workflow de n8n (RF05, RF08-RF12): vectorizar cursos, generar embedding de la
-  pregunta, consultar Qdrant, aplicar el umbral y construir el prompt RAG.
-- El frontend (HTML/CSS/JS) que consuma esta API.
-- Pruebas funcionales y documentación adicional en Swagger (`@Operation`, ejemplos).
