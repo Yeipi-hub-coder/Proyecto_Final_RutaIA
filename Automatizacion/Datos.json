@@ -1,0 +1,291 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "select",
+        "table": {
+          "__rl": true,
+          "value": "curso",
+          "mode": "list",
+          "cachedResultName": "curso"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "estado",
+              "value": "ACTIVO"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        112,
+        288
+      ],
+      "id": "e7a7ae76-bff5-49c3-910f-e9f31e272cde",
+      "name": "Select rows from a table",
+      "credentials": {
+        "mySql": {
+          "id": "1GZlZvDwU02AcPsL",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $('Armar Payload Final').item.json.url + '/collections/' + $('Armar Payload Final').item.json.coleccion + '/points?wait=true' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ points: $('Armar Payload Final').item.json.points }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1728,
+        288
+      ],
+      "id": "aef55584-3bbc-45cb-8ac1-61633f3ddbb0",
+      "name": "Guardar Qdrant"
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $json.url + '/collections/' + $json.coleccion }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({\n  \"vectors\": {\n    \"size\": Number($json.vector_size),\n    \"distance\": \"Cosine\"\n  }\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1504,
+        288
+      ],
+      "id": "c6068424-e0f3-437f-977e-36d58556faaf",
+      "name": "Crear Coleccion",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/embeddings",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({model: $json.modelo_embedding, input: $json.curso.texto_embedding, encoding_format: 'float'}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        560,
+        288
+      ],
+      "id": "7ab0a098-e417-4aa4-b65f-feb04a247856",
+      "name": "Generar Embeddings",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "DkN8VVUywI92E6yL",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nreturn items.map(item => {\n  const datos = item.json;\n\n  return {\n    json: {\n      qdrant_url: 'http://qdrant:6333',\n      coleccion: 'cursos-RutaIA',\n      modelo_embedding: 'openai/text-embedding-3-small',\n      curso: {\n        id: datos.id,\n        nombre: datos.nombre,\n        descripcion: datos.descripcion,\n        categoria: datos.categoria,\n        nivel: datos.nivel,\n        duracion: datos.duracion,\n        texto_embedding: `${datos.nombre}. ${datos.descripcion}`\n      }\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        288
+      ],
+      "id": "3ab8f043-0f5a-4912-9237-cfc0d7a09408",
+      "name": "Preparar Puntos1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const puntos = $json.data;\nconst config = $('Preparar Puntos1').first().json;\n\nreturn [\n  {\n    json: {\n      url: config.qdrant_url,\n      coleccion: config.coleccion,\n      vector_size: puntos[0].vector.length,\n      points: puntos\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1232,
+        288
+      ],
+      "id": "c8dbab18-2931-4fe6-b23f-5063dcbcb09a",
+      "name": "Armar Payload Final"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        288
+      ],
+      "id": "2fe23655-b4f4-45ab-a647-4e261cb2a210",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nreturn items.map((item, i) => {\n  const curso = $('Preparar Puntos1').all()[i].json.curso;\n  const embedding = item.json.data[0].embedding;\n\n  return {\n    json: {\n      id: Number (curso.id),\n      vector: embedding,\n      payload: {\n        nombre: curso.nombre,\n        descripcion: curso.descripcion,\n        categoria: curso.categoria,\n        nivel: curso.nivel,\n        duracion: curso.duracion\n      }\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        288
+      ],
+      "id": "78634b6f-5566-4c3b-a97a-4faa0012b076",
+      "name": "Armar Punto"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "dbb0de22-fe5e-428c-b54d-a79c8a45535b",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "connections": {
+    "Select rows from a table": {
+      "main": [
+        [
+          {
+            "node": "Preparar Puntos1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear Coleccion": {
+      "main": [
+        [
+          {
+            "node": "Guardar Qdrant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generar Embeddings": {
+      "main": [
+        [
+          {
+            "node": "Armar Punto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Puntos1": {
+      "main": [
+        [
+          {
+            "node": "Generar Embeddings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar Payload Final": {
+      "main": [
+        [
+          {
+            "node": "Crear Coleccion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Armar Payload Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar Punto": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Select rows from a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "285b34adb298fb67da4dfba8fbf5782089285c6bdad2e6ebe0d124288a37a8a4"
+  }
+}
