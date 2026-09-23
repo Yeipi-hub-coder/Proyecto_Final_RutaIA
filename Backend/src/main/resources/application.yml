@@ -2,26 +2,22 @@ server:
   port: 8080
 
 spring:
-  application:
-    name: rutaia-backend
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3307}/RutaIA?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: ${DB_USERNAME:xxx}
-    password: ${DB_PASSWORD:xxx}
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?sslMode=REQUIRED&serverTimezone=UTC
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      # La BD ya existe (script SQL entregado), por eso "validate" y no "update"
       ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
         format_sql: true
-    open-in-view: false
 
 # URL del workflow de n8n que recibe la pregunta y ejecuta el flujo RAG
 n8n:
-  webhook-url: https://reselect-contort-carwash.ngrok-free.dev/webhook-test/buscar_curso_rutaIA
+  webhook-url: https://reselect-contort-carwash.ngrok-free.dev/webhook/buscar_curso_rutaIA
   timeout-ms: 15000
 
 # Umbral minimo de similitud coseno para considerar un curso relevante (RF11)

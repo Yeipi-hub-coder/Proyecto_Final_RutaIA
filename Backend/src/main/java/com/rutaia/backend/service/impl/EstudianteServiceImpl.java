@@ -23,6 +23,12 @@ public class EstudianteServiceImpl implements EstudianteService {
     private final ConsultaRepository consultaRepository;
 
     @Override
+    public void eliminar(Integer id) {
+        Estudiante estudiante = buscarOFallar(id);
+        estudianteRepository.delete(estudiante);
+    }
+
+    @Override
     public EstudianteResponseDTO registrar(EstudianteRequestDTO dto) {
         // Regla de negocio: un correo solo puede pertenecer a un estudiante (RN01)
         if (estudianteRepository.existsByCorreo(dto.getCorreo())) {
@@ -72,7 +78,7 @@ public class EstudianteServiceImpl implements EstudianteService {
 
     @Override
     public List<ConsultaResponseDTO> historial(Integer id) {
-        buscarOFallar(id); // valida que el estudiante exista (RF02)
+        buscarOFallar(id); // valida que el estudiante exista
         List<Consulta> consultas = consultaRepository.findByEstudianteIdOrderByFechaDesc(id);
         return consultas.stream()
                 .map(c -> ConsultaResponseDTO.builder()

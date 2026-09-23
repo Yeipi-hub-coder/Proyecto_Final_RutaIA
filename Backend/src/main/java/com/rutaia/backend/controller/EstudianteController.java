@@ -48,6 +48,34 @@ public class EstudianteController {
     }
 
     @Operation(
+            summary = "Eliminar un estudiante",
+            description = "Elimina un estudiante por su id"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "El estudiante no se pudo eliminar"
+            ),
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Estudiante eliminado correctamente"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Estudiante no encontrado"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "No autenticado"
+            )
+    })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Integer id){
+        estudianteService.eliminar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
             summary = "Actualizar datos de estudiante",
             description = "Actualiza los datos de un estudiante que ya estaba registrado"
     )

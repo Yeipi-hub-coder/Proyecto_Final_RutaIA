@@ -12,4 +12,6 @@ public interface EstudianteService {
     List<EstudianteResponseDTO> listar();
     List<ConsultaResponseDTO> historial(Integer id);
     EstudianteResponseDTO actualizar(Integer id, EstudianteRequestDTO dto);
+
+    void eliminar(Integer id);
 }
