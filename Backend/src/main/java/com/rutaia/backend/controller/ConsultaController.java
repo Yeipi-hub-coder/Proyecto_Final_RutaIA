@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/consultas")
 @RequiredArgsConstructor
@@ -51,6 +53,19 @@ public class ConsultaController {
     @PostMapping
     public ResponseEntity<ConsultaResponseDTO> consultar(@Valid @RequestBody ConsultaRequestDTO dto) {
         return ResponseEntity.ok(consultaService.procesarConsulta(dto));
+    }
+
+    @Operation(
+            summary = "Listar consultas",
+            description = "Devuelve todos las consultas registradas en la plataforma."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Listado de consultas"
+    )
+    @GetMapping
+    public ResponseEntity<List<ConsultaResponseDTO>> listar(){
+        return ResponseEntity.ok(consultaService.listar());
     }
 
     @Operation(

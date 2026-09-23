@@ -103,6 +103,19 @@ public class ConsultaServiceImpl implements ConsultaService {
     }
 
     @Override
+    public List<ConsultaResponseDTO> listar() {
+        return consultaRepository.findAll().stream()
+                .map(consulta -> {
+                    Recomendacion recomendacion =
+                            recomendacionRepository.findByConsultaId(consulta.getId())
+                                    .orElse(null);
+
+                    return DtoToConsultaResponse(consulta, recomendacion);
+                })
+                .toList();
+    }
+
+    @Override
     public ConsultaResponseDTO obtenerPorId(Integer id) {
         Consulta consulta = consultaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No existe una consulta con id " + id));

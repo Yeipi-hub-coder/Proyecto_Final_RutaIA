@@ -9,5 +9,4 @@ public interface EstudianteRepository extends JpaRepository<Estudiante, Integer>
     boolean existsByCorreo(String correo);
     Optional<Estudiante> findByCorreo(String correo);
 
-
 }

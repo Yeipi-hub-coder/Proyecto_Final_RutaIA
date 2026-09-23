@@ -91,6 +91,13 @@ public class EstudianteServiceImpl implements EstudianteService {
                 .toList();
     }
 
+    @Override
+    public Integer obtenerIdPorCorreo(String correo) {
+        return estudianteRepository.findByCorreo(correo)
+                .map(Estudiante::getId)
+                .orElseThrow(() -> new RuntimeException("Estudiante no encontrado"));
+    }
+
     private Estudiante buscarOFallar(Integer id) {
         return estudianteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un estudiante con id " + id));

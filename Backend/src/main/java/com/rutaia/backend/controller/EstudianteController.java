@@ -104,7 +104,7 @@ public class EstudianteController {
 
     @Operation(
             summary = "Listar estudiantes",
-            description = "Devuelve todos los estudiantes registrados en la plataforma. (RF02)"
+            description = "Devuelve todos los estudiantes registrados en la plataforma."
     )
     @ApiResponse(
             responseCode = "200",
@@ -113,6 +113,28 @@ public class EstudianteController {
     @GetMapping
     public ResponseEntity<List<EstudianteResponseDTO>> listar() {
         return ResponseEntity.ok(estudianteService.listar());
+    }
+
+    @Operation(
+            summary = "Obtener ID de estudiante",
+            description = "Obtiene el ID de un estudiante utilizando su correo electrónico."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "ID del estudiante obtenido correctamente"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "No existe un estudiante con el correo proporcionado"
+            )
+    })
+    @GetMapping("/id")
+    public ResponseEntity<Integer> obtenerIdPorCorreo(
+            @RequestParam String correo
+    ) {
+        Integer estudianteId = estudianteService.obtenerIdPorCorreo(correo);
+        return ResponseEntity.ok(estudianteId);
     }
 
     @Operation(

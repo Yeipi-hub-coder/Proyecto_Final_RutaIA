@@ -12,6 +12,6 @@ public interface EstudianteService {
     List<EstudianteResponseDTO> listar();
     List<ConsultaResponseDTO> historial(Integer id);
     EstudianteResponseDTO actualizar(Integer id, EstudianteRequestDTO dto);
-
+    Integer obtenerIdPorCorreo(String correo);
     void eliminar(Integer id);
 }
