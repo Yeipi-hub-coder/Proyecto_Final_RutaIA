@@ -111,7 +111,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const contexto = $('Filtrar Umbral').first().json;\nconst llm = $json;\n\nreturn [{\n  json: {\n    estado: \"RESPONDIDA\",\n    respuesta: llm.choices[0].message.content,\n    fuentes: contexto.resultados.map(r => ({\n      cursoId: r.cursoId,\n      similitud: r.similitud\n    }))\n  }\n}];"
+        "jsCode": "const c = $('Preparar Pregunta').first().json;\nconst r = $input.first().json;\n\nconst pts = r.result?.points ?? r.result ?? [];\n\nconst resultados = pts.map(p => ({\n  cursoId: p.id,\n  nombre: p.payload?.nombre ?? '',\n  descripcion: p.payload?.descripcion ?? '',\n  categoria: p.payload?.categoria ?? '',\n  nivel: p.payload?.nivel ?? '',\n  duracion: p.payload?.duracion ?? '',\n  similitud: Number(p.score ?? 0)\n}));\n\nreturn [{\n  json: {\n    idConsulta: c.idConsulta,\n    pregunta: c.pregunta,\n    resultados,\n    hayResultados: resultados.length > 0\n  }\n}];"
       },
       "id": "3fb44aac-a386-469d-9877-45d3a2d5441b",
       "name": "Formatear Resultados",
@@ -152,7 +152,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const c = $('Preparar Pregunta').first().json;\nconst r = $input.first().json;\nconst pts = r.result?.points ?? r.result ?? [];\n\nconst UMBRAL_MINIMO = 0.5;\n\nconst resultados = pts\n  .filter(p => Number(p.score ?? 0) >= UMBRAL_MINIMO)\n  .map(p => ({\n    cursoId : p.id,\n    nombre : p.payload?.nombre ?? '',\n    descripcion : p.payload?.descripcion ?? '',\n    categoria : p.payload?.categoria ?? '',\n    nivel : p.payload?.nivel ?? '',\n    duracion : p.payload.duracion ?? '', \n    similitud : Number (p.score ?? 0)\n  }));\n\nreturn [{\n  json: {\n    idConsulta: c.idConsulta,\n    pregunta: c.pregunta,\n    resultados,\n    hayResultados: resultados.length > 0\n  }\n}];"
+        "jsCode": ""
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -219,7 +219,7 @@
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({\n  model: \"openai/gpt-4o-mini\",\n  messages: [\n    {\n      role: \"system\",\n      content: \"Eres un asesor académico. Responde ÚNICAMENTE con base en el contexto de cursos proporcionado. No inventes cursos que no estén en el contexto. Si el contexto no tiene información suficiente para responder, dilo explícitamente.\"\n    },\n    {\n      role: \"user\",\n      content: \"Pregunta del estudiante: \" + $json.pregunta + \"\\n\\nCursos disponibles:\\n\" + $json.resultados.map(r => `- ${r.nombre}: ${r.descripcion} (Categoría: ${r.categoria}, Nivel: ${r.nivel}, Duración: ${r.duracion}h, Similitud: ${r.similitud})`).join(\"\\n\")\n  }\n    }\n  ]\n}) }}",
+        "body": "={{ JSON.stringify({ model: "openai/gpt-4o-mini", messages: [{ role: "system", content: "Eres un asesor académico. Responde ÚNICAMENTE con base en el contexto de cursos proporcionado. No inventes cursos que no estén en el contexto. Si el contexto no tiene información suficiente para responder, dilo explícitamente." }, { role: "user", content: "Pregunta del estudiante: " + $json.pregunta + "\n\nCursos disponibles:\n" + $json.resultados.map(r => `- ${r.nombre}: ${r.descripcion} (Categoría: ${r.categoria}, Nivel: ${r.nivel}, Duración: ${r.duracion}h, Similitud: ${r.similitud})`).join("\n") }] }) }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -456,3 +456,6 @@
     "instanceId": "285b34adb298fb67da4dfba8fbf5782089285c6bdad2e6ebe0d124288a37a8a4"
   }
 }
+
+
+
