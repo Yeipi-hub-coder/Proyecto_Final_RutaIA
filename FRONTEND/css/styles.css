@@ -562,18 +562,17 @@ button {
 
 .student-grid {
     display: grid;
-
     grid-template-columns: 1.15fr 1fr;
-
     gap: 20px;
+
+    align-items: start;
 }
 
 .card {
-    color: whi;
+    color: white;
     background: #078fe8;
 
     border: 1px solid var(--borde);
-
     border-radius: var(--radio);
 
     padding: 25px;
@@ -581,7 +580,20 @@ button {
     box-shadow: var(--sombra);
 }
 
-.card-header {
+.card-historial {
+    background: #078fe8;
+
+    border: 1px solid var(--borde);
+    border-radius: var(--radio);
+
+    padding: 25px;
+
+    box-shadow: var(--sombra);
+
+    height: fit-content;
+}
+
+.card-consult {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -606,6 +618,11 @@ button {
    CURSOS
 ========================================= */
 
+
+.course-name{
+    font-size: larger;
+}
+
 .course-list {
     display: flex;
     flex-direction: column;
@@ -615,6 +632,8 @@ button {
 
 .course {
     border: 1px solid var(--borde);
+    background-color: rgb(14, 36, 70);
+    color: rgb(204, 218, 231);
 
     border-radius: 16px;
 
@@ -953,7 +972,91 @@ button {
     );
 }
 
+.chatbox-section {
+    background: rgb(255, 255, 255);
+    color: rgb(7, 31, 77);
 
+    border-radius: 22px;
+
+    padding: 30px;
+
+    box-shadow: var(--sombra);
+}
+
+.chatbox-section h1 {
+    font-size: 30px;
+
+    margin-bottom: 8px;
+}
+
+.chatbox-section p {
+    color: var(--texto-secundario);
+
+    margin-bottom: 25px;
+}
+
+.chat-container {
+    display: flex;
+    flex-direction: column;
+
+    height: 550px;
+
+    border: 1px solid var(--borde);
+
+    border-radius: 18px;
+
+    overflow: hidden;
+}
+
+.chat-messages {
+    flex: 1;
+
+    padding: 25px;
+
+    overflow-y: auto;
+
+    background: #aec0e3;
+}
+
+.chat-input {
+    display: flex;
+
+    gap: 10px;
+
+    padding: 15px;
+
+    background: rgb(212, 212, 212);
+
+    border-top: 1px solid var(--borde);
+}
+
+.chat-input input {
+    flex: 1;
+
+    height: 50px;
+
+    border: 1px solid var(--borde);
+
+    border-radius: 12px;
+
+    padding: 0 15px;
+
+    font-size: 16px;
+}
+
+.chat-input button {
+    padding: 0 25px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: #078fe8;
+
+    color: white;
+
+    font-weight: bold;
+}
 
 /* =========================================
    RESPONSIVE
@@ -990,6 +1093,46 @@ button {
     .chart-card {
         grid-column: span 2;
     }
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 25px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 15px;
+
+    overflow-y: auto;
+}
+
+.mensaje {
+    max-width: 70%;
+
+    padding: 14px 18px;
+
+    border-radius: 18px;
+
+    line-height: 1.5;
+}
+
+.mensaje-usuario {
+    align-self: flex-end;
+
+    background: #078fe8;
+    color: white;
+
+    border-bottom-right-radius: 5px;
+}
+
+.mensaje-ia {
+    align-self: flex-start;
+
+    background: #eef5fa;
+    color: #10182f;
+
+    border-bottom-left-radius: 5px;
 }
 
 

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Chatbox | Ruta IA</title>
+
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+<div class="dashboard">
+
+    <aside class="sidebar">
+
+        <div class="sidebar-logo">
+            Ruta IA
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <a href="estudiante.html">
+                <span class="menu-icon">⌂</span>
+                Inicio
+            </a>
+
+            <a href="cursos.html">
+                <span class="menu-icon">▤</span>
+                Todos los cursos
+            </a>
+
+            <a href="progreso.html">
+                <span class="menu-icon">▶</span>
+                Cursos en progreso
+            </a>
+
+            <a href="calificaciones.html">
+                <span class="menu-icon">▥</span>
+                Calificaciones
+            </a>
+
+            <a href="chatbox.html" class="active">
+                <span class="menu-icon">☵</span>
+                Chatbox de cursos
+            </a>
+
+            <a href="estadisticas.html">
+                <span class="menu-icon">◴</span>
+                Estadísticas
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <main class="main-content">
+
+        <header class="topbar">
+
+            <div class="search">
+
+                <input
+                    type="text"
+                    placeholder="Buscar..."
+                >
+
+            </div>
+
+            <div class="profile">
+
+                <div class="profile-avatar">
+                    SR
+                </div>
+
+                <div>
+
+                    <div class="profile-name">
+                        Sofía Ramírez
+                    </div>
+
+                    <div class="profile-role">
+                        Estudiante
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <div class="content-wrapper">
+
+            <section class="chatbox-section">
+
+                <h1>
+                    Consulta sobre tus cursos
+                </h1>
+
+                <p>
+                    Pregunta algo y Ruta IA buscará cursos relacionados.
+                </p>
+
+
+<div class="chat-container">
+
+    <div class="chat-messages" id="mensajesChat">
+    </div>
+
+    <div class="chat-input">
+
+        <input
+            type="text"
+            id="pregunta"
+            placeholder="Escribe tu consulta..."
+        >
+
+        <button id="btnEnviar">
+            Enviar
+        </button>
+
+    </div>
+
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/chatbox.js"></script>
+
+</body>
+
+</html>
