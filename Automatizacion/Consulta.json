@@ -1,4 +1,5 @@
 {
+  "name": "Ruta-IA CONSULTA",
   "nodes": [
     {
       "parameters": {
@@ -7,13 +8,13 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "6021c64e-fea9-4384-a079-940ed91d2e77",
+      "id": "a4d2e91e-6066-4c7f-b861-e46507bc98c4",
       "name": "Webhook Frontend",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        0,
-        0
+        -1584,
+        432
       ],
       "webhookId": "f5bf59c8-0502-462a-ada9-c936d32acad0"
     },
@@ -21,13 +22,13 @@
       "parameters": {
         "jsCode": "const b=$json.body??$json; \nif(!b.pregunta?.trim()) throw new Error('Falta pregunta'); \nreturn [{json: \n  {\n    pregunta:b.pregunta.trim(),\n    qdrant_url:'http://qdrant:6333',\n    coleccion:'cursos-RutaIA',\n    modelo_embedding:'openai/text-embedding-3-small',\n    limite:5\n  }\n}];"
       },
-      "id": "6190396a-c65b-47c4-8686-d88a7c47ea9f",
+      "id": "d8fb87bc-6a1f-4d36-850a-2802b7d23453",
       "name": "Preparar Pregunta",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        256,
-        0
+        -1328,
+        432
       ]
     },
     {
@@ -51,17 +52,17 @@
         "body": "={{ JSON.stringify({model:$json.modelo_embedding,input:$json.pregunta,encoding_format:'float'}) }}",
         "options": {}
       },
-      "id": "3e6e7ef2-baf3-4325-ba67-b14e84d659ab",
+      "id": "729bae71-eeb9-4651-bd9d-e95340fc75d5",
       "name": "Embedding Pregunta",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        512,
-        0
+        -1072,
+        432
       ],
       "credentials": {
         "httpBearerAuth": {
-          "id": "DkN8VVUywI92E6yL",
+          "id": "GqKaPtmpNJMdMx8I",
           "name": "Bearer Auth account"
         }
       },
@@ -71,13 +72,13 @@
       "parameters": {
         "jsCode": "const c=$('Preparar Pregunta').first().json; \nconst r=$input.first().json; \nreturn [{\n  json:{\n    ...c,\n    vector:r.data[0].embedding\n  }\n}];"
       },
-      "id": "025575ab-6a5e-4cf4-a590-a9a5a04696cb",
+      "id": "708c6400-d018-4317-b480-ee5c078ccb2f",
       "name": "Preparar Consulta",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        784,
-        -16
+        -800,
+        416
       ]
     },
     {
@@ -99,27 +100,27 @@
         "body": "={{ JSON.stringify({query:$json.vector,limit:$json.limite,with_payload:true,with_vector:false}) }}",
         "options": {}
       },
-      "id": "71b9a051-6389-45ab-9d03-fc06ccbe2e55",
+      "id": "de06314d-74bf-4b70-a0b0-64691a2cc50b",
       "name": "Buscar en Qdrant",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1040,
-        -16
+        -544,
+        416
       ],
       "onError": "continueErrorOutput"
     },
     {
       "parameters": {
-        "jsCode": "const c = $('Preparar Pregunta').first().json;\nconst r = $input.first().json;\n\nconst pts = r.result?.points ?? r.result ?? [];\n\nconst resultados = pts.map(p => ({\n  cursoId: p.id,\n  nombre: p.payload?.nombre ?? '',\n  descripcion: p.payload?.descripcion ?? '',\n  categoria: p.payload?.categoria ?? '',\n  nivel: p.payload?.nivel ?? '',\n  duracion: p.payload?.duracion ?? '',\n  similitud: Number(p.score ?? 0)\n}));\n\nreturn [{\n  json: {\n    idConsulta: c.idConsulta,\n    pregunta: c.pregunta,\n    resultados,\n    hayResultados: resultados.length > 0\n  }\n}];"
+        "jsCode": "const contexto = $('Filtrar Umbral').first().json;\nconst llm = $json;\n\nreturn [{\n  json: {\n    estado: \"RESPONDIDA\",\n    respuesta: llm.choices[0].message.content,\n    fuentes: contexto.resultados.map(r => ({\n      cursoId: r.cursoId,\n      similitud: r.similitud\n    }))\n  }\n}];"
       },
-      "id": "3fb44aac-a386-469d-9877-45d3a2d5441b",
+      "id": "3b039eef-51ba-4fb8-a9d5-603195b17a36",
       "name": "Formatear Resultados",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1904,
-        -368
+        544,
+        64
       ]
     },
     {
@@ -141,26 +142,26 @@
           }
         }
       },
-      "id": "8d359d12-477b-4b99-8768-908c6ad38fd6",
+      "id": "3c909496-2512-4375-8154-c7b02b040fac",
       "name": "Responder al Frontend",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.4,
       "position": [
-        2176,
-        16
+        816,
+        448
       ]
     },
     {
       "parameters": {
-        "jsCode": ""
+        "jsCode": "const c = $('Preparar Pregunta').first().json;\nconst r = $input.first().json;\n\nconst pts = r.result?.points ?? r.result ?? [];\n\nconst UMBRAL_MINIMO = 0.4;\n\nconst resultados = pts\n  .filter(p => Number(p.score ?? 0) >= UMBRAL_MINIMO)\n  .map(p => ({\n  cursoId: p.id,\n  nombre: p.payload?.nombre ?? '',\n  descripcion: p.payload?.descripcion ?? '',\n  categoria: p.payload?.categoria ?? '',\n  nivel: p.payload?.nivel ?? '',\n  duracion: p.payload?.duracion ?? '',\n  similitud: Number(p.score ?? 0)\n}));\n\nreturn [{\n  json: {\n    idConsulta: c.idConsulta,\n    pregunta: c.pregunta,\n    resultados,\n    hayResultados: resultados.length > 0\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1280,
-        -32
+        -304,
+        400
       ],
-      "id": "b724ca36-c50b-4386-9f43-fe3f6f5eddbf",
+      "id": "d0669bf4-2383-43e0-a124-dc8e7575579f",
       "name": "Filtrar Umbral"
     },
     {
@@ -191,10 +192,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        1488,
-        -32
+        -64,
+        400
       ],
-      "id": "8da44b32-6aaa-47e2-87cf-12cd9e0b3608",
+      "id": "aae2f795-3a79-418e-bd72-545be8b007b6",
       "name": "If"
     },
     {
@@ -204,10 +205,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1792,
-        160
+        432,
+        592
       ],
-      "id": "b1e26ca3-5a28-4f3f-a957-2e03b4d8fe9f",
+      "id": "f6101f18-693d-4129-b84e-ad79c3a8f02b",
       "name": "Busqueda Fallida"
     },
     {
@@ -219,20 +220,20 @@
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ model: "openai/gpt-4o-mini", messages: [{ role: "system", content: "Eres un asesor académico. Responde ÚNICAMENTE con base en el contexto de cursos proporcionado. No inventes cursos que no estén en el contexto. Si el contexto no tiene información suficiente para responder, dilo explícitamente." }, { role: "user", content: "Pregunta del estudiante: " + $json.pregunta + "\n\nCursos disponibles:\n" + $json.resultados.map(r => `- ${r.nombre}: ${r.descripcion} (Categoría: ${r.categoria}, Nivel: ${r.nivel}, Duración: ${r.duracion}h, Similitud: ${r.similitud})`).join("\n") }] }) }}",
+        "body": "={{ JSON.stringify({\n  model: \"openai/gpt-4o-mini\",\n  messages: [\n    {\n      role: \"system\",\n      content: \"Eres un asesor académico. Responde ÚNICAMENTE con base en el contexto de cursos proporcionado. No inventes cursos que no estén en el contexto. Si el contexto no tiene información suficiente para responder, dilo explícitamente.\"\n    },\n    {\n      role: \"user\",\n      content:\n        \"Pregunta del estudiante: \" + $json.pregunta +\n        \"\\n\\nCursos disponibles:\\n\" +\n        $json.resultados\n          .map(r =>\n            `- ${r.nombre}: ${r.descripcion} (Categoría: ${r.categoria}, Nivel: ${r.nivel}, Duración: ${r.duracion}h, Similitud: ${r.similitud})`\n          )\n          .join(\"\\n\")\n    }\n  ]\n}) }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        1696,
-        -352
+        336,
+        80
       ],
-      "id": "7d389020-80d1-4dcb-a43f-f3a2bdb1ee92",
+      "id": "ef7a689a-ea3a-4ab6-9a15-2a09274c7ebd",
       "name": "Generar Respuesta",
       "credentials": {
         "httpBearerAuth": {
-          "id": "DkN8VVUywI92E6yL",
+          "id": "GqKaPtmpNJMdMx8I",
           "name": "Bearer Auth account"
         }
       },
@@ -245,10 +246,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        624,
-        192
+        -960,
+        624
       ],
-      "id": "f44760fe-892d-4358-be21-b50d7140098a",
+      "id": "1a80eda3-3bf2-43a6-bf1e-ec584d24d42c",
       "name": "Embedding fallido"
     },
     {
@@ -258,10 +259,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1152,
-        208
+        -432,
+        640
       ],
-      "id": "f139f44b-e943-4862-9d6c-a0d9740fe92d",
+      "id": "6b7cc7f1-3949-4290-8b29-0dde08590b6b",
       "name": "Qdrant Fallido"
     },
     {
@@ -271,13 +272,14 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1808,
-        -160
+        448,
+        272
       ],
-      "id": "68774ecf-f2ed-4e37-a751-1a6145c19be9",
+      "id": "e9925763-f0aa-4bfc-9244-50d0fd158f0e",
       "name": "Generar Rta Fallida"
     }
   ],
+  "pinData": {},
   "connections": {
     "Webhook Frontend": {
       "main": [
@@ -451,11 +453,16 @@
       ]
     }
   },
-  "pinData": {},
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "c310513c-8328-4660-94a5-2f8dad0996b9",
   "meta": {
-    "instanceId": "285b34adb298fb67da4dfba8fbf5782089285c6bdad2e6ebe0d124288a37a8a4"
-  }
+    "instanceId": "455a100aeea20d7fb05bf5b5d63457aac0736dc81fe3d671b79aabf6cef9f78b"
+  },
+  "nodeGroups": [],
+  "id": "RgJKT4eEtTDSkiuh",
+  "tags": []
 }
-
-
-

@@ -1,44 +1,10 @@
 {
+  "name": "Datos",
   "nodes": [
     {
       "parameters": {
-        "operation": "select",
-        "table": {
-          "__rl": true,
-          "value": "curso",
-          "mode": "list",
-          "cachedResultName": "curso"
-        },
-        "returnAll": true,
-        "where": {
-          "values": [
-            {
-              "column": "estado",
-              "value": "ACTIVO"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.mySql",
-      "typeVersion": 2.5,
-      "position": [
-        112,
-        288
-      ],
-      "id": "e7a7ae76-bff5-49c3-910f-e9f31e272cde",
-      "name": "Select rows from a table",
-      "credentials": {
-        "mySql": {
-          "id": "1GZlZvDwU02AcPsL",
-          "name": "MySQL account"
-        }
-      }
-    },
-    {
-      "parameters": {
         "method": "PUT",
-        "url": "={{ $('Armar Payload Final').item.json.url + '/collections/' + $('Armar Payload Final').item.json.coleccion + '/points?wait=true' }}",
+        "url": "={{ $('Armar Payload Final').first().json.qdrant_url\n   + '/collections/'\n   + $('Armar Payload Final').first().json.coleccion\n   + '/points?wait=true' }}\n",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -57,16 +23,16 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        1728,
-        288
+        2400,
+        160
       ],
-      "id": "aef55584-3bbc-45cb-8ac1-61633f3ddbb0",
+      "id": "e36c9093-15ab-4677-a78e-dc39882d2f66",
       "name": "Guardar Qdrant"
     },
     {
       "parameters": {
         "method": "PUT",
-        "url": "={{ $json.url + '/collections/' + $json.coleccion }}",
+        "url": "={{ $json.qdrant_url + '/collections/' + $json.coleccion }}\n",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -85,10 +51,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        1504,
-        288
+        2160,
+        160
       ],
-      "id": "c6068424-e0f3-437f-977e-36d58556faaf",
+      "id": "9b8313c5-6952-416e-b74b-2534668f1599",
       "name": "Crear Coleccion",
       "onError": "continueRegularOutput"
     },
@@ -116,42 +82,29 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        560,
-        288
+        1248,
+        160
       ],
-      "id": "7ab0a098-e417-4aa4-b65f-feb04a247856",
+      "id": "cca46c88-bfe2-4a39-aeb6-c5fd7b47aa92",
       "name": "Generar Embeddings",
       "credentials": {
         "httpBearerAuth": {
-          "id": "DkN8VVUywI92E6yL",
+          "id": "GqKaPtmpNJMdMx8I",
           "name": "Bearer Auth account"
         }
       }
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\n\nreturn items.map(item => {\n  const datos = item.json;\n\n  return {\n    json: {\n      qdrant_url: 'http://qdrant:6333',\n      coleccion: 'cursos-RutaIA',\n      modelo_embedding: 'openai/text-embedding-3-small',\n      curso: {\n        id: datos.id,\n        nombre: datos.nombre,\n        descripcion: datos.descripcion,\n        categoria: datos.categoria,\n        nivel: datos.nivel,\n        duracion: datos.duracion,\n        texto_embedding: `${datos.nombre}. ${datos.descripcion}`\n      }\n    }\n  };\n});"
+        "jsCode": "const puntos = $json.data;\n\nif (!puntos || puntos.length === 0) {\n  throw new Error('No se generaron puntos para Qdrant');\n}\n\n// Recuperamos la configuración original\nconst config = $('Preparar Puntos').first().json;\n\n// Calculamos la fecha MÁS NUEVA procesada\nconst fechas = puntos\n  .map(p => p.fecha_actualizacion)\n  .filter(Boolean)\n  .map(f => new Date(f));\n\nif (fechas.length === 0) {\n  throw new Error('Los puntos no contienen fecha_actualizacion');\n}\n\nconst fechaMaxima = new Date(Math.max(...fechas));\n\nreturn [\n  {\n    json: {\n      qdrant_url: config.qdrant_url,\n      coleccion: config.coleccion,\n      vector_size: puntos[0].vector.length,\n      points: puntos,\n\n      ultimaFechaProcesada: fechaMaxima\n        .toISOString()\n        .slice(0, 19)\n        .replace('T', ' ')\n    }\n  }\n];\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        336,
-        288
+        1920,
+        160
       ],
-      "id": "3ab8f043-0f5a-4912-9237-cfc0d7a09408",
-      "name": "Preparar Puntos1"
-    },
-    {
-      "parameters": {
-        "jsCode": "const puntos = $json.data;\nconst config = $('Preparar Puntos1').first().json;\n\nreturn [\n  {\n    json: {\n      url: config.qdrant_url,\n      coleccion: config.coleccion,\n      vector_size: puntos[0].vector.length,\n      points: puntos\n    }\n  }\n];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1232,
-        288
-      ],
-      "id": "c8dbab18-2931-4fe6-b23f-5063dcbcb09a",
+      "id": "5e6dcd04-1343-4d9d-8ce1-b477ef686484",
       "name": "Armar Payload Final"
     },
     {
@@ -162,23 +115,23 @@
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
       "position": [
-        1008,
-        288
+        1696,
+        160
       ],
-      "id": "2fe23655-b4f4-45ab-a647-4e261cb2a210",
+      "id": "7a8eaed0-996e-42eb-8342-472b611a802e",
       "name": "Aggregate"
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\n\nreturn items.map((item, i) => {\n  const curso = $('Preparar Puntos1').all()[i].json.curso;\n  const embedding = item.json.data[0].embedding;\n\n  return {\n    json: {\n      id: Number (curso.id),\n      vector: embedding,\n      payload: {\n        nombre: curso.nombre,\n        descripcion: curso.descripcion,\n        categoria: curso.categoria,\n        nivel: curso.nivel,\n        duracion: curso.duracion\n      }\n    }\n  };\n});"
+        "jsCode": "const items = $input.all();\nconst cursos = $('Preparar Puntos').all();\n\nreturn items.map((item, i) => {\n  const curso = cursos[i].json.curso;\n  const embedding = item.json.data[0].embedding;\n\n  return {\n    json: {\n      id: Number(curso.id),\n\n      vector: embedding,\n\n      fecha_actualizacion: curso.fecha_actualizacion,\n\n      payload: {\n        curso_id: curso.id,\n        nombre: curso.nombre,\n        descripcion: curso.descripcion,\n        categoria: curso.categoria,\n        nivel: curso.nivel,\n        duracion: curso.duracion,\n        estado: curso.estado,\n        fecha_actualizacion: curso.fecha_actualizacion\n      }\n    }\n  };\n});\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        784,
-        288
+        1472,
+        160
       ],
-      "id": "78634b6f-5566-4c3b-a97a-4faa0012b076",
+      "id": "81e44639-52ef-4ae8-bf8f-a1e3009f1633",
       "name": "Armar Punto"
     },
     {
@@ -186,25 +139,138 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        0,
-        0
+        224,
+        48
       ],
-      "id": "dbb0de22-fe5e-428c-b54d-a79c8a45535b",
+      "id": "f8014a30-8dd4-4830-bbcf-09f6d6201d41",
       "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\n\nreturn [\n  {\n    json: {\n      mensaje: 'No hay cursos modificados',\n      registros: 0,\n      ultimaSincronizacion: staticData.ultimaSincronizacion || '1970-01-01 00:00:00'\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        976,
+        320
+      ],
+      "id": "f78c8179-0236-44db-804d-43c2d7741a7e",
+      "name": "Sin Cambios"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "9007fd3d-3e6c-4992-98e4-012abb31f72d",
+              "leftValue": "={{ $items().length > 0 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        752,
+        256
+      ],
+      "id": "71d24316-6ed6-4540-9efa-7c753551ffc7",
+      "name": "Cursos Modificados?"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT *\nFROM curso\nWHERE estado = 'ACTIVO'\nAND fecha_actualizacion > '{{ $json.ultima_sincronizacion }}'\nORDER BY fecha_actualizacion ASC;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        528,
+        256
+      ],
+      "id": "55e572d9-2894-4260-9170-c7bc70336abc",
+      "name": "Obtener Cursos Modificados",
+      "credentials": {
+        "mySql": {
+          "id": "EdzBkJwqEgcjVxgA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT ultima_sincronizacion\nFROM sincronizacion_qdrant\nWHERE id = 1;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        336,
+        256
+      ],
+      "id": "e32a3891-67fc-4c3b-aedc-7e258c973c43",
+      "name": "Obtener ultima Sincronizacion",
+      "credentials": {
+        "mySql": {
+          "id": "EdzBkJwqEgcjVxgA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nreturn items.map(item => {\n  const d = item.json;\n\n  const id = d.id;\n  const nombre = String(d.nombre ?? '').trim();\n  const descripcion = String(d.descripcion ?? '').trim();\n  const categoria = String(d.categoria ?? '').trim();\n  const nivel = String(d.nivel ?? '').trim();\n  const estado = String(d.estado ?? '').trim().toUpperCase();\n\n  const textoEmbedding = [\n    `Curso: ${nombre}`,\n    `Descripción: ${descripcion}`,\n    `Categoría: ${categoria}`,\n    `Nivel: ${nivel}`,\n  ].join('. ');\n\n  return {\n    json: {\n      qdrant_url: 'http://qdrant:6333',\n      coleccion: 'cursos-RutaIA',\n      modelo_embedding: 'openai/text-embedding-3-small',\n\n      curso: {\n        id,\n        nombre,\n        descripcion,\n        categoria,\n        nivel,\n        duracion: d.duracion ?? null,\n        estado,\n        fecha_actualizacion: d.fecha_actualizacion,\n        texto_embedding: textoEmbedding\n      }\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        976,
+        160
+      ],
+      "id": "654d3bf0-25e8-49e8-9114-1c4faa436777",
+      "name": "Preparar Puntos"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE sincronizacion_qdrant\nSET ultima_sincronizacion = '{{ $('Armar Payload Final').first().json.ultimaFechaProcesada }}'\nWHERE id = 1;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        2672,
+        160
+      ],
+      "id": "12b87ab3-95e1-4e85-9798-307fa83188fd",
+      "name": "Actualizar Ultima Sincronizacion",
+      "credentials": {
+        "mySql": {
+          "id": "EdzBkJwqEgcjVxgA",
+          "name": "MySQL account"
+        }
+      }
     }
   ],
+  "pinData": {},
   "connections": {
-    "Select rows from a table": {
-      "main": [
-        [
-          {
-            "node": "Preparar Puntos1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Crear Coleccion": {
       "main": [
         [
@@ -221,17 +287,6 @@
         [
           {
             "node": "Armar Punto",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Preparar Puntos1": {
-      "main": [
-        [
-          {
-            "node": "Generar Embeddings",
             "type": "main",
             "index": 0
           }
@@ -275,7 +330,69 @@
       "main": [
         [
           {
-            "node": "Select rows from a table",
+            "node": "Obtener ultima Sincronizacion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar Qdrant": {
+      "main": [
+        [
+          {
+            "node": "Actualizar Ultima Sincronizacion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cursos Modificados?": {
+      "main": [
+        [
+          {
+            "node": "Preparar Puntos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sin Cambios",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener Cursos Modificados": {
+      "main": [
+        [
+          {
+            "node": "Cursos Modificados?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener ultima Sincronizacion": {
+      "main": [
+        [
+          {
+            "node": "Obtener Cursos Modificados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Puntos": {
+      "main": [
+        [
+          {
+            "node": "Generar Embeddings",
             "type": "main",
             "index": 0
           }
@@ -283,9 +400,17 @@
       ]
     }
   },
-  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "90fad8ec-2fcc-41cb-8fba-7536014b0415",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "285b34adb298fb67da4dfba8fbf5782089285c6bdad2e6ebe0d124288a37a8a4"
-  }
+    "instanceId": "455a100aeea20d7fb05bf5b5d63457aac0736dc81fe3d671b79aabf6cef9f78b"
+  },
+  "nodeGroups": [],
+  "id": "rHjWHG9bohUlvPeo",
+  "tags": []
 }
