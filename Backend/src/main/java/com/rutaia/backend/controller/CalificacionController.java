@@ -22,7 +22,7 @@ public class CalificacionController {
     private final CalificacionService calificacionService;
 
     @Operation(
-            summary = "Calificar una recomendación",
+            summary = "Calificar una recomendacion",
             description = "Registra una puntuación de 1 a 5 y un comentario opcional para una recomendación puntual. Solo se permite una calificación por recomendación"
     )
     @ApiResponses({
@@ -46,5 +46,27 @@ public class CalificacionController {
     @PostMapping
     public ResponseEntity<CalificacionResponseDTO> calificar(@Valid @RequestBody CalificacionRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(calificacionService.calificar(dto));
+    }
+
+    @Operation(
+            summary = "Obtener el id de recomendación a partir del id de consulta",
+            description = "El frontend normalmente solo tiene a mano el consultaId. Este endpoint " +
+                    "devuelve el recomendacionId asociado a esa consulta, necesario para poder " +
+                    "calificarla con POST /api/calificaciones."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Id de la recomendación encontrada"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "La consulta no existe o aún no tiene una recomendación asociada"
+            )
+    })
+    @GetMapping("/recomendacion-por-consulta/{consultaId}")
+    public ResponseEntity<Integer> obtenerRecomendacionIdPorConsulta(
+            @PathVariable Integer consultaId) {
+        return ResponseEntity.ok(calificacionService.obtenerRecomendacionIdPorConsulta(consultaId));
     }
 }

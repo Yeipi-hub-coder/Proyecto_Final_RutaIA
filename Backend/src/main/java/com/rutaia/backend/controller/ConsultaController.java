@@ -3,6 +3,7 @@ package com.rutaia.backend.controller;
 import com.rutaia.backend.dto.Request.ConsultaRequestDTO;
 import com.rutaia.backend.dto.Response.ConsultaResponseDTO;
 import com.rutaia.backend.service.ConsultaService;
+import com.rutaia.backend.service.EstudianteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -85,5 +86,24 @@ public class ConsultaController {
     @GetMapping("/{id}")
     public ResponseEntity<ConsultaResponseDTO> obtener(@PathVariable Integer id) {
         return ResponseEntity.ok(consultaService.obtenerPorId(id));
+    }
+
+    @Operation(
+            summary = "Historial de consultas de un estudiante",
+            description = "Devuelve todas las consultas que ha realizado el estudiante, de la más reciente a la más antigua, junto con su estado y recomendación si ya fue procesada."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Historial del estudiante"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "No existe un estudiante con ese id"
+            )
+    })
+    @GetMapping("/{id}/historial")
+    public ResponseEntity<List<ConsultaResponseDTO>> historial(@PathVariable Integer id) {
+        return ResponseEntity.ok(consultaService.historial(id));
     }
 }

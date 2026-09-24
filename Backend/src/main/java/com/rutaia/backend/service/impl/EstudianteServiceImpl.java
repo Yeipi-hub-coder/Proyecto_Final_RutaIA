@@ -77,21 +77,6 @@ public class EstudianteServiceImpl implements EstudianteService {
     }
 
     @Override
-    public List<ConsultaResponseDTO> historial(Integer id) {
-        buscarOFallar(id); // valida que el estudiante exista
-        List<Consulta> consultas = consultaRepository.findByEstudianteIdOrderByFechaDesc(id);
-        return consultas.stream()
-                .map(c -> ConsultaResponseDTO.builder()
-                        .id(c.getId())
-                        .estudianteId(c.getEstudiante().getId())
-                        .pregunta(c.getPregunta())
-                        .fecha(c.getFecha())
-                        .estado(c.getEstado())
-                        .build())
-                .toList();
-    }
-
-    @Override
     public Integer obtenerIdPorCorreo(String correo) {
         return estudianteRepository.findByCorreo(correo)
                 .map(Estudiante::getId)

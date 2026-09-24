@@ -21,7 +21,7 @@ public class CalificacionServiceImpl implements CalificacionService {
 
     @Override
     public CalificacionResponseDTO calificar(CalificacionRequestDTO dto) {
-        Recomendacion recomendacion = recomendacionRepository.findById(dto.getRecomendacionId())
+        Recomendacion recomendacion = recomendacionRepository.findByConsultaId(dto.getRecomendacionId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "No existe una recomendacion con id " + dto.getRecomendacionId()));
 
@@ -44,5 +44,13 @@ public class CalificacionServiceImpl implements CalificacionService {
                 .comentario(calificacion.getComentario())
                 .fecha(calificacion.getFecha())
                 .build();
+    }
+
+    @Override
+    public Integer obtenerRecomendacionIdPorConsulta(Integer consultaId) {
+        return recomendacionRepository.findByConsultaId(consultaId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "La consulta " + consultaId + " no existe"))
+                .getId();
     }
 }

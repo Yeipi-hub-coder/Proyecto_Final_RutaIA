@@ -116,7 +116,7 @@ public class EstudianteController {
     }
 
     @Operation(
-            summary = "Obtener ID de estudiante",
+            summary = "Obtener ID de estudiante con correo",
             description = "Obtiene el ID de un estudiante utilizando su correo electrónico."
     )
     @ApiResponses({
@@ -156,22 +156,4 @@ public class EstudianteController {
         return ResponseEntity.ok(estudianteService.obtenerPorId(id));
     }
 
-    @Operation(
-            summary = "Historial de consultas de un estudiante",
-            description = "Devuelve todas las consultas que ha realizado el estudiante, de la más reciente a la más antigua, junto con su estado y recomendación si ya fue procesada."
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Historial del estudiante"
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "No existe un estudiante con ese id"
-            )
-    })
-    @GetMapping("/{id}/historial")
-    public ResponseEntity<List<ConsultaResponseDTO>> historial(@PathVariable Integer id) {
-        return ResponseEntity.ok(estudianteService.historial(id));
-    }
 }

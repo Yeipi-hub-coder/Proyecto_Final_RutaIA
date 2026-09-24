@@ -9,4 +9,5 @@ public interface ConsultaService {
     ConsultaResponseDTO procesarConsulta(ConsultaRequestDTO dto);
     ConsultaResponseDTO obtenerPorId(Integer id);
     List<ConsultaResponseDTO> listar();
+    List<ConsultaResponseDTO> historial(Integer id);
 }

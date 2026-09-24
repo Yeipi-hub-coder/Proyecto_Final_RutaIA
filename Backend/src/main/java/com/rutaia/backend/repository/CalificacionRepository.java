@@ -1,6 +1,7 @@
 package com.rutaia.backend.repository;
 
 import com.rutaia.backend.model.Calificacion;
+import com.rutaia.backend.model.Consulta;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CalificacionRepository extends JpaRepository<Calificacion, Integer> {

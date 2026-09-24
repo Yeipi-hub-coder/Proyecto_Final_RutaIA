@@ -115,6 +115,39 @@ public class ConsultaServiceImpl implements ConsultaService {
                 .toList();
     }
 
+    public List<ConsultaResponseDTO> historial(Integer id) {
+        buscarOFallar(id); // valida que el estudiante exista
+        List<Consulta> consultas = consultaRepository.findByEstudianteIdOrderByFechaDesc(id);
+        return consultas.stream()
+                .map(c -> ConsultaResponseDTO.builder()
+                        .id(c.getId())
+                        .estudianteId(c.getEstudiante().getId())
+                        .pregunta(c.getPregunta())
+                        .fecha(c.getFecha())
+                        .estado(c.getEstado())
+                        .recomendacion(
+                                recomendacionRepository.findByConsultaId(c.getId())
+                                        .map(rec -> RecomendacionResponseDTO.builder()
+                                                .consultaId(c.getId())
+                                                .pregunta(c.getPregunta())
+                                                .respuesta(rec.getRespuestaGenerada())
+                                                .fuentes(rec.getFuentes().stream()
+                                                        .map(f -> FuenteResponseDTO.builder()
+                                                                .cursoId(f.getCurso().getId())
+                                                                .nombre(f.getCurso().getNombre())
+                                                                .descripcion(f.getCurso().getDescripcion())
+                                                                .categoria(f.getCurso().getCategoria())
+                                                                .similitud(f.getSimilitud())
+                                                                .build())
+                                                        .toList())
+                                                .estado(rec.getEstadoFinal())
+                                                .fecha(rec.getFecha())
+                                                .build())
+                                        .orElse(null))
+                        .build())
+                .toList();
+    }
+
     @Override
     public ConsultaResponseDTO obtenerPorId(Integer id) {
         Consulta consulta = consultaRepository.findById(id)
@@ -170,5 +203,10 @@ public class ConsultaServiceImpl implements ConsultaService {
                 .estado(consulta.getEstado())
                 .recomendacion(recDto)
                 .build();
+    }
+
+    private Estudiante buscarOFallar(Integer id) {
+        return estudianteRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un estudiante con id " + id));
     }
 }
