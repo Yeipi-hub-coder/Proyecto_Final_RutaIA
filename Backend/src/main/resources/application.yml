@@ -20,9 +20,6 @@ n8n:
   webhook-url: https://reselect-contort-carwash.ngrok-free.dev/webhook/buscar_curso_rutaIA
   timeout-ms: 15000
 
-# Umbral minimo de similitud coseno para considerar un curso relevante (RF11)
-rag:
-  umbral-similitud: ${RAG_UMBRAL:0.75}
 
 springdoc:
   swagger-ui:

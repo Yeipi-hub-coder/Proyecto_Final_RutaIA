@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ConsultaRepository extends JpaRepository<Consulta, Integer> {
-    List<Consulta> findByEstudianteIdOrderByFechaDesc(Integer estudianteId);
+    List<Consulta> findByEstudianteIdOrderByFechaAsc(Integer estudianteId);
     long countByEstado(com.rutaia.backend.model.enums.EstadoConsulta estado);
 }

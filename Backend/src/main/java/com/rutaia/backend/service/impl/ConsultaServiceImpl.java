@@ -117,7 +117,7 @@ public class ConsultaServiceImpl implements ConsultaService {
 
     public List<ConsultaResponseDTO> historial(Integer id) {
         buscarOFallar(id); // valida que el estudiante exista
-        List<Consulta> consultas = consultaRepository.findByEstudianteIdOrderByFechaDesc(id);
+        List<Consulta> consultas = consultaRepository.findByEstudianteIdOrderByFechaAsc(id);
         return consultas.stream()
                 .map(c -> ConsultaResponseDTO.builder()
                         .id(c.getId())
