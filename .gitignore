@@ -1,0 +1,26 @@
+# Gradle
+.gradle/
+build/
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# Gradle Wrapper
+!gradle/wrapper/gradle-wrapper.jar
+
+# Código fuente
+!**/src/main/**
+!**/src/test/**
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# IntelliJ / compilación
+out/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db

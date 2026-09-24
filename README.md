@@ -93,3 +93,209 @@ com.rutaia.backend
 | POST   | /api/calificaciones                    | 
 | GET    | /api/estadisticas                      | 
 
+---
+
+# Base de datos, Qdrant y automatizaciones (n8n)
+
+Esta sección documenta la base de datos relacional (MySQL), la base de datos
+vectorial (Qdrant) y los flujos de automatización (n8n) del proyecto.
+
+## Base de datos relacional (MySQL)
+
+### Script SQL
+
+El script completo de creación de la base de datos está en [`\RutaIA\MySQL\Schema.sql`](.\RutaIA\MySQL\Schema.sql).
+
+Además encuentras un scrip para insersion de cursos y estudiantes (como ejemplo de prueba)
+[`\RutaIA\MySQL\Data.sql`](.\RutaIA\MySQL\Data.sql).
+
+### Tablas
+
+| Tabla | Descripción |
+|---|---|
+| `estudiante` | Nombre, correo (único), nivel de experiencia, área de interés |
+| `curso` | Nombre, descripción, categoría, nivel, duración, estado (activo/inactivo), `fecha_actualizacion` (usada por n8n para sincronización incremental) |
+| `consulta` | Pregunta del estudiante, fecha, estado (`PENDIENTE`, `RESPONDIDA`, `SIN_RESULTADOS`, `ERROR`) |
+| `recomendacion` | Respuesta generada, fecha, estado final, ligada a una `consulta` |
+| `fuente` | Relación N:M entre `recomendacion` y `curso`, con la similitud (score) de cada fuente |
+| `calificacion` | Puntuación (1-5) y comentario opcional por recomendación (una sola por recomendación) |
+| `sincronizacion_qdrant` | ultima_sincronizacion (usada por n8n para llevar un registro de ultima actualizacion realizada) |
+
+### Cómo ejecutar el script
+
+```bash
+mysql -u root -p < RutaIA\MySQL\Data.sq
+```
+
+Esto crea la base de datos `RutaIA` y todas las tablas con sus relaciones,
+restricciones e índices.
+
+## Base de datos vectorial (Qdrant)
+
+### Configuración de la colección
+
+| Parámetro | Valor |
+|---|---|
+| Nombre de la colección | `cursos-RutaIA` |
+| Dimensión del vector | `1536` |
+| Métrica de distancia | `Cosine` |
+| Modelo de embeddings | `openai/text-embedding-3-small` (vía OpenRouter) |
+
+### Estructura de cada punto
+
+```json
+{
+  "id": 5,
+  "vector": [/* 1536 números */],
+  "payload": {
+    "curso_id": 5,
+    "nombre": "...",
+    "descripcion": "...",
+    "categoria": "...",
+    "nivel": "...",
+    "duracion": 40,
+    "estado": "ACTIVO"
+  }
+}
+```
+
+El `id` del punto en Qdrant es siempre el mismo `id` del curso en MySQL, lo que
+permite hacer *upsert* sin generar duplicados al re-sincronizar.
+
+### Umbral de similitud
+
+`[0.40(`UMBRAL_MINIMO`)
+usado en el nodo "Filtrar Umbral" del flujo de consulta, con base en pruebas
+reales sobre las consultas de la sección 10 del enunciado]`
+
+### Acceder al dashboard de Qdrant
+
+```
+http://localhost:6333/dashboard
+```
+
+## Automatizaciones (n8n)
+
+Hay dos workflows de n8n en [`\RutaIA\Automatizacion`](.\RutaIA\Automatizacion):
+
+### 1. `Ruta-IA DATOS` — Carga y sincronización de cursos en Qdrant
+
+Obtiene los cursos activos de MySQL, genera sus embeddings vía OpenRouter y
+los inserta/actualiza (*upsert*) en Qdrant.
+
+- **Trigger:** manual (botón "Execute workflow" dentro de n8n).
+- **Sincronización incremental:** solo procesa cursos cuya `fecha_actualizacion`
+  sea posterior a la última ejecución exitosa (guardada internamente en el
+  workflow). Si no hay cursos nuevos o modificados, el flujo termina sin
+  llamar a OpenRouter ni a Qdrant.
+- **Resumen del flujo:**
+  ```
+  Manual Trigger → Obtener última sincronización → SELECT cursos modificados
+  → (¿hay resultados?) → Preparar texto → Generar Embeddings (OpenRouter)
+  → Armar punto → Agrupar → Crear colección (si no existe) → Guardar en Qdrant
+  → Actualizar última sincronización
+  ```
+
+**Cómo ejecutarlo la primera vez:** correrlo manualmente una vez con la base
+de datos ya poblada (mínimo 20 cursos activos) para la carga inicial completa.
+Después, puede volver a ejecutarse cuantas veces se necesite — solo procesará
+los cursos que hayan cambiado.
+
+### 2. `Ruta-IA Consulta` — Flujo RAG en tiempo real
+
+Recibe la pregunta del estudiante desde Spring Boot, busca los cursos más
+relevantes en Qdrant y genera una respuesta con el modelo de lenguaje.
+
+- **Trigger:** Webhook (`POST`), expuesto en la ruta `/webhook/buscar_curso_rutaIA`.
+- **Contrato de entrada** (enviado por Spring Boot):
+  ```json
+  {
+    "idConsulta": 1,
+    "Pregunta": "pregunta del estudiante",
+    "Nivel": "nivel del estudiante",
+    "areaInteres": "área de interés"
+  }
+  ```
+- **Contrato de salida:**
+  ```json
+  {
+    "estado": "RESPONDIDA",
+    "respuesta": "Texto generado por el modelo...",
+    "fuentes": [
+      { "cursoId": 3, "similitud": 0.8421 },
+      { "cursoId": 7, "similitud": 0.7912 }
+    ]
+  }
+  ```
+- **Resumen del flujo:**
+  ```
+  Webhook → Preparar pregunta → Generar embedding de la pregunta (OpenRouter)
+  → Buscar en Qdrant (solo cursos activos) → Filtrar por umbral de similitud
+  → (¿hay resultados?)
+      SÍ → Generar respuesta con el modelo (OpenRouter chat) → Formatear
+      NO → Responder "sin resultados"
+  → Responder al Frontend (vía Spring Boot)
+  ```
+- **Manejo de errores:** cada paso crítico (embedding, búsqueda en Qdrant,
+  generación de respuesta) tiene una rama de error propia que responde con
+  `estado: "ERROR"` sin detener el resto del sistema.
+
+### Importar los workflows en n8n
+
+1. Abre n8n → menú **⋮** → **Import from File**.
+2. Selecciona el archivo `.json` del workflow correspondiente.
+3. Configura las credenciales (ver más abajo) — no vienen incluidas en el
+   archivo exportado por seguridad.
+4. Activa el workflow de consulta (el de carga se ejecuta manualmente).
+
+### Credenciales necesarias en n8n
+
+| Credencial | Tipo | Uso |
+|---|---|---|
+| MySQL account | MySQL | Nodo de lectura de cursos |
+| OpenRouter (Header/Bearer Auth) | Generic Credential | Embeddings y generación de respuesta |
+
+Ninguna API key va escrita directamente en los workflows — se configuran como
+credenciales dentro de n8n.
+
+## Docker
+
+### Servicios
+
+| Servicio | Imagen | Puerto |
+|---|---|---|
+| MySQL | `[PENDIENTE: confirmar imagen/versión usada por el equipo]` | 3306 |
+| Qdrant | `qdrant/qdrant:latest` | 6333 (HTTP), 6334 (gRPC) |
+| n8n | `n8nio/n8n:latest` | 5678 |
+| `[PENDIENTE: backend/frontend si se dockerizan]` | | |
+
+### Cómo levantar los servicios
+
+```bash
+docker compose up -d
+```
+
+Se emplea un archivo.env para almacenar las variables de entorno necesarias sin hacerlas publicas
+
+
+Verificar que todo esté arriba:
+```bash
+docker ps
+```
+
+### Variables de entorno (`.env`)
+
+```env
+# MySQL
+MYSQL_ROOT_PASSWORD=
+MYSQL_DATABASE=RutaIA
+
+# n8n (si se expone con ngrok)
+NGROK_AUTHTOKEN=
+N8N_HOST=
+WEBHOOK_URL=
+
+# OpenRouter (se configura como credencial DENTRO de n8n, no como variable de entorno)
+```
+
+
