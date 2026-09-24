@@ -23,6 +23,7 @@
 
 
 <body>
+    
 
 <div class="dashboard">
 
@@ -40,7 +41,7 @@
         <nav class="sidebar-menu">
 
             <a
-                href="#"
+                href="estudiante.html"
                 class="active"
             >
                 <span class="menu-icon">⌂</span>
@@ -48,33 +49,20 @@
             </a>
 
 
-            <a href="#">
+            <a href="cursos.html">
                 <span class="menu-icon">▤</span>
                 Todos los cursos
             </a>
 
-
-            <a href="#">
-                <span class="menu-icon">▶</span>
-                Cursos en progreso
-            </a>
-
-
-            <a href="#">
+            <a href="calificaciones.html">
                 <span class="menu-icon">▥</span>
-                Calificaciones
+                Historial Calificaciones
             </a>
 
 
             <a href="chatbox.html">
                 <span class="menu-icon">☵</span>
                 Chatbox de cursos
-            </a>
-
-
-            <a href="#">
-                <span class="menu-icon">◴</span>
-                Estadísticas
             </a>
 
         </nav>
@@ -105,14 +93,13 @@
 
             <div class="profile">
 
-                <div class="profile-avatar">
-                    SR
+                <div class="profile-avatar" id="iniciales_perfil">
+                    R_IA
                 </div>
 
                 <div>
 
-                    <div class="profile-name">
-                        Sofía Ramírez
+                    <div class="profile-name" id="perfil">
                     </div>
 
                     <div class="profile-role">
@@ -137,8 +124,8 @@
 
                 <div class="hero-content">
 
-                    <h1>
-                        ¡Hola Estudiante!
+                    <h1 id="saludo_Estudiante">
+                        ¡Hola, !
                     </h1>
 
                     <p class="hero-description">
@@ -190,13 +177,15 @@
                 ================================== -->
 
                 <article class="card">
-
-                    <div class="card-consult">
-
                         <h2>
                             Historial de Consultas
                         </h2>
-                        
+                    <div>
+
+                        <div class="historial-lista" id="listaHistorial">
+
+                        </div>
+
                     </div>
 
                 </article>
@@ -210,6 +199,8 @@
 </div>
 <script src="js/api.js"></script>
 <script src="js/estudiante.js"></script>
+<script src="js/sesion.js"></script>
+<script src="js/historial.js"></script>
 </body>
 
 </html>

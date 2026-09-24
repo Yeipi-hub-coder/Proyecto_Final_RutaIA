@@ -53,7 +53,16 @@ function mostrarCursos(cursos) {
     });
 
 }
-
-
 cargarCursos();
+
+function obtenerNombreEstudiante() {
+    return localStorage.getItem("nombrelocal");
+}
+
+document.getElementById("saludo_Estudiante").textContent =
+    `¡Hola, ${obtenerNombreEstudiante()}!`;
+
+document.getElementById("perfil").textContent= 
+    `${obtenerNombreEstudiante()}`;
+
 

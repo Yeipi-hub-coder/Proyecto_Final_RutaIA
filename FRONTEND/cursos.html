@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Ruta IA | Cursos</title>
+
+    <link
+        rel="stylesheet"
+        href="css/styles.css"
+    >
+
+</head>
+
+<body>
+
+<div class="dashboard">
+
+    <!-- ==============================
+         SIDEBAR
+    =============================== -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-logo">
+            Ruta IA
+        </div>
+
+
+        <nav class="sidebar-menu">
+
+            <a
+                href="estudiante.html"
+                class="active"
+            >
+                <span class="menu-icon">⌂</span>
+                Inicio
+            </a>
+
+
+            <a href="cursos.html">
+                <span class="menu-icon">▤</span>
+                Todos los cursos
+            </a>
+
+            <a href="calificaciones.html">
+                <span class="menu-icon">▥</span>
+                Historial Calificaciones
+            </a>
+
+
+            <a href="chatbox.html">
+                <span class="menu-icon">☵</span>
+                Chatbox de cursos
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- ==============================
+         CONTENIDO PRINCIPAL
+    =============================== -->
+
+    <main class="main-content">
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+            <div class="search">
+
+                <input
+                    type="text"
+                    id="buscarCurso"
+                    placeholder="Buscar cursos..."
+                >
+
+            </div>
+
+
+            <div class="profile">
+
+                <div class="profile-avatar">
+                    ES
+                </div>
+
+                <div>
+
+                    <div class="profile-name">
+                        Estudiante
+                    </div>
+
+                    <div class="profile-role">
+                        Estudiante
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- ==============================
+             CONTENIDO CURSOS
+        =============================== -->
+
+        <div class="content-wrapper">
+
+            <section class="courses-header">
+
+                <div>
+
+                    <p class="courses-label">
+                        CATÁLOGO
+                    </p>
+
+                    <h1>
+                        Todos los cursos
+                    </h1>
+
+                </div>
+
+            </section>
+
+            <section
+                class="courses-grid"
+                id="listaTodosCursos"
+            >
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<script src="js/api.js"></script>
+<script src="js/cursos.js"></script>
+<script src="js/sesion.js"></script>
+
+</body>
+
+</html>

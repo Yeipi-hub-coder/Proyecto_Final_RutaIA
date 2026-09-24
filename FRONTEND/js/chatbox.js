@@ -15,44 +15,86 @@ async function enviarConsulta() {
     }
 
 
+    // Obtenemos el estudiante que inició sesión
+    const estudianteId =
+        Number(localStorage.getItem("estudianteId"));
+
+
+    // Si no existe sesión
+    if (!estudianteId) {
+
+        alert("Debes iniciar sesión");
+
+        window.location.href = "login.html";
+
+        return;
+    }
+
+
     mostrarMensajeUsuario(pregunta);
 
     inputPregunta.value = "";
 
 
+    // La consulta queda asociada al estudiante real
     const consulta = {
-        estudianteId: 1,
+
+        estudianteId: estudianteId,
+
         pregunta: pregunta,
+
         nivelExperiencia: "PRINCIPIANTE",
+
         areaInteres: "Programación"
     };
 
 
     try {
 
-        const respuesta = await fetch(`${API_URL}/consultas`, {
+        const respuesta = await fetch(
+            `${API_URL}/consultas`,
+            {
 
-            method: "POST",
+                method: "POST",
 
-            headers: {
-                "Content-Type": "application/json"
-            },
+                headers: {
+                    "Content-Type": "application/json"
+                },
 
-            body: JSON.stringify(consulta)
+                body: JSON.stringify(consulta)
 
-        });
+            }
+        );
 
 
         if (!respuesta.ok) {
-            throw new Error("Error al realizar la consulta");
+
+            throw new Error(
+                "Error al realizar la consulta"
+            );
+
         }
 
 
-        const resultado = await respuesta.json();
+        const resultado =
+            await respuesta.json();
 
-        console.log(resultado);
 
-        mostrarMensajeIA(resultado.respuesta);
+        console.log(
+            "Consulta guardada:",
+            resultado
+        );
+
+
+        console.log(
+            "ID de consulta:",
+            resultado.id
+        );
+
+
+        mostrarMensajeIA(
+            resultado.recomendacion.respuesta
+        );
 
 
     } catch (error) {
@@ -67,9 +109,12 @@ async function enviarConsulta() {
 
 }
 
+
+
 function mostrarMensajeUsuario(texto) {
 
-    const mensaje = document.createElement("div");
+    const mensaje =
+        document.createElement("div");
 
     mensaje.classList.add(
         "mensaje",
@@ -85,9 +130,11 @@ function mostrarMensajeUsuario(texto) {
 }
 
 
+
 function mostrarMensajeIA(texto) {
 
-    const mensaje = document.createElement("div");
+    const mensaje =
+        document.createElement("div");
 
     mensaje.classList.add(
         "mensaje",

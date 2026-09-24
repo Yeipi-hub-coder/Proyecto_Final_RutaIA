@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Historial de Consultas | Ruta IA
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="css/styles.css"
+    >
+
+</head>
+
+
+<body>
+
+<div class="dashboard">
+
+    <!-- =================================
+         SIDEBAR
+    ================================== -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-logo">
+            Ruta IA
+        </div>
+
+
+        <nav class="sidebar-menu">
+
+            <a
+                href="estudiante.html"
+                class="active"
+            >
+                <span class="menu-icon">⌂</span>
+                Inicio
+            </a>
+
+
+            <a href="cursos.html">
+                <span class="menu-icon">▤</span>
+                Todos los cursos
+            </a>
+
+            <a href="calificaciones.html">
+                <span class="menu-icon">▥</span>
+                Historial Calificaciones
+            </a>
+
+
+            <a href="chatbox.html">
+                <span class="menu-icon">☵</span>
+                Chatbox de cursos
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- =================================
+         CONTENIDO PRINCIPAL
+    ================================== -->
+
+    <main class="main-content">
+
+        <header class="topbar">
+
+        </header>
+
+        <div class="content-wrapper">
+
+            <section class="historial-section">
+
+                <div class="historial-header">
+
+                    <div>
+
+                        <p class="historial-label">
+                            HISTORIAL
+                        </p>
+
+                        <h1>
+                            Consultas realizadas
+                        </h1>
+
+                        <p>
+                            Aquí puedes ver las preguntas que has realizado
+                            y las respuestas obtenidas.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="historial-lista"
+                    id="listaHistorial"
+                >
+
+                    <!--
+                    JavaScript agregará aquí
+                    las consultas del estudiante
+                    -->
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/sesion.js"></script>
+<script src="js/historial.js"></script>
+
+</body>
+
+</html>

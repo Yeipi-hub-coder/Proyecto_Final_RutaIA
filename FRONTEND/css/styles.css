@@ -1135,6 +1135,363 @@ button {
     border-bottom-left-radius: 5px;
 }
 
+/* =========================================
+   PAGINA TODOS LOS CURSOS
+========================================= */
+
+.courses-header {
+    background: linear-gradient(
+        120deg,
+        #078fe8,
+        #007bd3
+    );
+
+    color: rgb(241, 245, 247);
+
+    border-radius: 22px;
+
+    padding: 32px 38px;
+
+    margin-bottom: 25px;
+
+    text-align: center;
+}
+
+.courses-label {
+    font-size: 13px;
+    font-weight: 800;
+
+    letter-spacing: 2px;
+
+    opacity: 0.8;
+
+    margin-bottom: 8px;
+}
+
+.courses-header h1 {
+    font-size: 38px;
+
+    margin-bottom: 8px;
+    
+}
+
+.courses-description {
+    max-width: 650px;
+
+    font-size: 16px;
+
+    line-height: 1.5;
+
+    opacity: 0.9;
+}
+
+
+/* =========================================
+   GRID CURSOS
+========================================= */
+
+.courses-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(280px, 1fr));
+
+    gap: 20px;
+
+    align-items: stretch;
+}
+
+
+/* =========================================
+   TARJETA CURSO
+========================================= */
+
+.curso-card {
+    background: rgb(234, 237, 242);
+
+    border: 1px solid var(--borde);
+
+    border-radius: 20px;
+
+    padding: 22px;
+
+    min-height: 290px;
+
+    display: flex;
+    flex-direction: column;
+
+    box-shadow: var(--sombra);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.curso-card:hover {
+    transform: translateY(-4px);
+
+    box-shadow:
+        0 15px 35px
+        rgba(10, 80, 130, 0.12);
+}
+
+
+/* =========================================
+   PARTE SUPERIOR TARJETA
+========================================= */
+
+.curso-card-superior {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 22px;
+}
+
+.curso-iniciales {
+    width: 58px;
+    height: 58px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #1e86db;
+
+    border-radius: 15px;
+
+    color: #eaeff3;
+
+    font-size: 19px;
+    font-weight: 900;
+}
+
+.curso-categoria {
+    background: #a9cfea;
+
+    color: #526276;
+
+    padding: 7px 12px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================
+   INFORMACION CURSO
+========================================= */
+
+.curso-card-contenido {
+    flex: 1;
+}
+
+.curso-card-contenido h2 {
+    font-size: 21px;
+
+    margin-bottom: 12px;
+
+    color: #10182f;
+}
+
+.curso-card-contenido p {
+    color: #3f5277;
+
+    font-size: 15px;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================
+   BOTON
+========================================= */
+
+.curso-card-footer {
+    margin-top: 22px;
+}
+
+.curso-card-footer button {
+    width: 100%;
+
+    height: 44px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: #078fe8;
+
+    color: white;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.curso-card-footer button:hover {
+    background: #0079cd;
+}
+
+/* =========================================
+   HISTORIAL DE CONSULTAS
+========================================= */
+
+.historial-section {
+    padding: 5px 0;
+}
+
+.historial-header {
+    background: linear-gradient(
+        120deg,
+        #078fe8,
+        #007bd3
+    );
+
+    color: white;
+
+    padding: 28px 32px;
+
+    border-radius: 20px;
+
+    margin-bottom: 22px;
+}
+
+.historial-label {
+    font-size: 12px;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+
+    margin-bottom: 6px;
+
+    opacity: 0.8;
+}
+
+.historial-header h1 {
+    font-size: 32px;
+
+    margin-bottom: 7px;
+}
+
+.historial-header p {
+    opacity: 0.9;
+
+    max-width: 650px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================
+   LISTA
+========================= */
+
+.historial-lista {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 16px;
+}
+
+
+/* =========================
+   CONSULTA
+========================= */
+
+.historial-item {
+    background: white;
+
+    border: 1px solid var(--borde);
+
+    border-radius: 18px;
+
+    padding: 22px;
+
+    box-shadow: var(--sombra);
+
+    transition: 0.2s;
+}
+
+.historial-item:hover {
+    transform: translateY(-2px);
+}
+
+.historial-item-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 12px;
+}
+
+.historial-fecha {
+    color: var(--texto-secundario);
+
+    font-size: 13px;
+}
+
+.historial-estado {
+    background: #dbf7e7;
+
+    color: #158347;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    padding: 6px 10px;
+
+    border-radius: 20px;
+}
+
+.historial-item h3 {
+    font-size: 19px;
+
+    color: var(--texto);
+
+    margin-bottom: 10px;
+}
+
+.historial-respuesta {
+    color: var(--texto-secundario);
+
+    line-height: 1.6;
+
+    font-size: 14px;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 800px) {
+
+    .courses-header {
+        padding: 25px;
+    }
+
+    .courses-header h1 {
+        font-size: 30px;
+    }
+
+    .courses-grid {
+        grid-template-columns: 1fr;
+    }
+}
 
 @media (max-width: 850px) {
 

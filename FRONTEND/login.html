@@ -36,7 +36,7 @@
 
             <div class="login-form-area">
 
-                <form class="login-form">
+                <form class="login-form" id="loginForm">
 
                     <div class="logo-text">
                         RutaIA
@@ -55,7 +55,9 @@
 
                         <input
                             type="email"
+                            id="correo"
                             placeholder="Escribe tu correo"
+                            required
                         >
 
                     </div>
@@ -69,7 +71,9 @@
 
                         <input
                             type="password"
+                            id="contrasena"
                             placeholder="Ingresa tu contraseña"
+                            required
                         >
 
                     </div>
@@ -89,7 +93,10 @@
         </section>
 
     </main>
-
+<script src="js/api.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/sesion.js"></script>
+<script src="js/login.js"></script>
 </body>
 
 </html>
