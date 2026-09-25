@@ -20,7 +20,7 @@ public interface RecomendacionRepository extends JpaRepository<Recomendacion, In
         left join fetch r.fuentes f
         left join fetch f.curso
         where c.estudiante.id = :estudianteId
-        order by c.fecha desc
+        order by c.fecha asc
         """)
     List<Recomendacion> findConEstudianteId(@Param("estudianteId") Integer estudianteId);
 
