@@ -104,47 +104,18 @@ public class ConsultaServiceImpl implements ConsultaService {
 
     @Override
     public List<ConsultaResponseDTO> listar() {
-        return consultaRepository.findAll().stream()
-                .map(consulta -> {
-                    Recomendacion recomendacion =
-                            recomendacionRepository.findByConsultaId(consulta.getId())
-                                    .orElse(null);
-
-                    return DtoToConsultaResponse(consulta, recomendacion);
-                })
+        // Un solo SELECT con JOIN FETCH en vez de una consulta extra por cada
+        // consulta/fuente/curso (mismo problema N+1 que tenia el historial por estudiante).
+        return recomendacionRepository.findTodasConDetalle().stream()
+                .map(r -> toConsultaResponse(r.getConsulta(), r))
                 .toList();
     }
 
+    @Override
     public List<ConsultaResponseDTO> historial(Integer id) {
         buscarOFallar(id); // valida que el estudiante exista
-        List<Consulta> consultas = consultaRepository.findByEstudianteIdOrderByFechaAsc(id);
-        return consultas.stream()
-                .map(c -> ConsultaResponseDTO.builder()
-                        .id(c.getId())
-                        .estudianteId(c.getEstudiante().getId())
-                        .pregunta(c.getPregunta())
-                        .fecha(c.getFecha())
-                        .estado(c.getEstado())
-                        .recomendacion(
-                                recomendacionRepository.findByConsultaId(c.getId())
-                                        .map(rec -> RecomendacionResponseDTO.builder()
-                                                .consultaId(c.getId())
-                                                .pregunta(c.getPregunta())
-                                                .respuesta(rec.getRespuestaGenerada())
-                                                .fuentes(rec.getFuentes().stream()
-                                                        .map(f -> FuenteResponseDTO.builder()
-                                                                .cursoId(f.getCurso().getId())
-                                                                .nombre(f.getCurso().getNombre())
-                                                                .descripcion(f.getCurso().getDescripcion())
-                                                                .categoria(f.getCurso().getCategoria())
-                                                                .similitud(f.getSimilitud())
-                                                                .build())
-                                                        .toList())
-                                                .estado(rec.getEstadoFinal())
-                                                .fecha(rec.getFecha())
-                                                .build())
-                                        .orElse(null))
-                        .build())
+        return recomendacionRepository.findConEstudianteId(id).stream()
+                .map(r -> toConsultaResponse(r.getConsulta(), r))
                 .toList();
     }
 
